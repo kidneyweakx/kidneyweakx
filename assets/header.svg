@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 170" width="900" height="170" role="img" aria-label="KIDNEYWEAKX header">
+  <title>KIDNEYWEAKX · neon header</title>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#1a0033"/>
+      <stop offset="50%"  stop-color="#000814"/>
+      <stop offset="100%" stop-color="#0a001f"/>
+    </linearGradient>
+
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#00f0ff"/>
+      <stop offset="50%"  stop-color="#ff79c6"/>
+      <stop offset="100%" stop-color="#b026ff"/>
+    </linearGradient>
+
+    <linearGradient id="under" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="transparent"/>
+      <stop offset="50%"  stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </linearGradient>
+
+    <!-- soft shine streak: transparent → white → transparent -->
+    <linearGradient id="shineGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="45%"  stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="55%"  stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- clip to the title row so the shine only sweeps over the text -->
+    <clipPath id="titleBand">
+      <rect x="0" y="60" width="900" height="80"/>
+    </clipPath>
+
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0 H0 V40" fill="none" stroke="#00f0ff" stroke-opacity="0.08"/>
+    </pattern>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <style><![CDATA[
+    @keyframes drift { to { transform: translateX(-40px); } }
+    .grid-mv { animation: drift 4s linear infinite; }
+
+    @keyframes glitch {
+      0%, 96%, 100% { transform: translate(0,0); }
+      97%           { transform: translate(2px,-1px); }
+      98%           { transform: translate(-2px,1px); }
+      99%           { transform: translate(1px,0); }
+    }
+    .title { animation: glitch 5s infinite; }
+
+    @keyframes shine {
+      0%   { transform: translateX(-500px) skewX(-20deg); opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateX(500px) skewX(-20deg); opacity: 0; }
+    }
+    .shine { animation: shine 5s ease-in-out infinite; mix-blend-mode: screen; }
+
+    @keyframes tickerLeft  { to { transform: translateX(-200%); } }
+    .ticker { animation: tickerLeft 28s linear infinite; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.25; }
+    }
+    .dot { animation: blink 1.2s ease-in-out infinite; }
+  ]]></style>
+
+  <!-- Background -->
+  <rect width="900" height="170" fill="url(#bg)"/>
+  <g class="grid-mv">
+    <rect x="-40" y="0" width="980" height="170" fill="url(#grid)"/>
+  </g>
+
+  <!-- Top HUD strip -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#00f0ff">
+    <rect x="0" y="0" width="900" height="20" fill="#000" fill-opacity="0.5"/>
+    <text x="12" y="14">▸ SYS://kidneyweakx.com</text>
+    <circle cx="170" cy="10" r="3" fill="#39ff14" class="dot"/>
+    <text x="180" y="14">ONLINE</text>
+    <text x="880" y="14" text-anchor="end" opacity="0.8">TOKYO · UTC+9</text>
+  </g>
+
+  <!-- Big title -->
+  <g class="title" filter="url(#glow)">
+    <text x="450" y="115" text-anchor="middle"
+          font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+          font-size="72" font-weight="900"
+          fill="url(#title)" letter-spacing="6">
+      KIDNEYWEAKX
+    </text>
+  </g>
+
+  <!-- Subtitle -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14"
+     fill="#ff79c6" letter-spacing="4">
+    <text x="450" y="142" text-anchor="middle" opacity="0.85">
+      software engineer · tokyo · エンジニア
+    </text>
+  </g>
+
+  <!-- Animated underline -->
+  <rect x="220" y="152" width="460" height="2" fill="url(#under)"/>
+
+  <!-- Moving shine — narrow gradient streak, clipped to the title band -->
+  <g clip-path="url(#titleBand)">
+    <rect class="shine" x="200" y="60" width="160" height="80"
+          fill="url(#shineGrad)"/>
+  </g>
+
+  <!-- Corner brackets -->
+  <g stroke="#00f0ff" stroke-width="2" fill="none" opacity="0.7">
+    <polyline points="20,30 20,20 30,20"/>
+    <polyline points="870,20 880,20 880,30"/>
+    <polyline points="20,140 20,150 30,150"/>
+    <polyline points="870,150 880,150 880,140"/>
+  </g>
+</svg>

@@ -1,0 +1,39 @@
+name: Update Commit-Activity Status
+
+on:
+  schedule:
+    # hourly at :13 (offset to avoid quota traffic spikes)
+    - cron: "13 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: status-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch character.svg with latest commit activity
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_USER: ${{ github.repository_owner }}
+        run: python3 scripts/update-status.py
+
+      - name: Commit & push if changed
+        run: |
+          if git diff --quiet -- assets/character.svg assets/productive.svg; then
+            echo "no changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/character.svg assets/productive.svg
+          git commit -m "chore(status): refresh commit-activity assets [skip ci]"
+          git push
