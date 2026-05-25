@@ -2,8 +2,8 @@ name: Update Commit-Activity Status
 
 on:
   schedule:
-    # hourly at :13 (offset to avoid quota traffic spikes)
-    - cron: "13 * * * *"
+    # every 6 hours at :13 (offset to avoid quota traffic spikes)
+    - cron: "13 */6 * * *"
   workflow_dispatch:
 
 permissions:
