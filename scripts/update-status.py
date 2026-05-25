@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Refresh commit-activity status assets.
+"""Refresh commit-activity + now-playing assets.
 
-Two outputs, both written from the same GitHub events fetch:
+Outputs:
+  1. assets/character.svg    — patches three small fields in place
+       <circle id="status-dot">     dot color
+       <text   id="status-push">    "last push · HH:MM JST · Nh ago"
+       <text   id="status-text">    ONLINE / IDLE / AFK
 
-  1. assets/character.svg   — three small fields patched in place
-       <circle id="status-dot">    breathing-dot color
-       <text   id="status-push">   "last push · HH:MM UTC · Nh ago"
-       <text   id="status-text">   ONLINE / IDLE / AFK (color matches dot)
+  2. assets/productive.svg   — cyberpunk bar chart of commit activity
+                                by JST bucket (morning / daytime / evening / night).
 
-  2. assets/productive.svg  — full cyberpunk bar chart of recent
-     commit activity by UTC bucket (morning / daytime / evening / night).
+  3. assets/now-playing.svg  — anime + manga currently / favorite, with
+                                priority chain: AniList → Jikan/MAL → data/now-playing.json.
 """
 from __future__ import annotations
 
@@ -24,10 +26,11 @@ from pathlib import Path
 
 USER = os.environ.get("GH_USER", "kidneyweakx")
 ROOT = Path(__file__).resolve().parent.parent
-CHARACTER_SVG  = ROOT / "assets" / "character.svg"
-PRODUCTIVE_SVG = ROOT / "assets" / "productive.svg"
+CHARACTER_SVG    = ROOT / "assets" / "character.svg"
+PRODUCTIVE_SVG   = ROOT / "assets" / "productive.svg"
+NOW_PLAYING_SVG  = ROOT / "assets" / "now-playing.svg"
+NOW_PLAYING_JSON = ROOT / "data"   / "now-playing.json"
 
-# All displayed clock times use JST (UTC+9), matching kidneyweakx's timezone.
 JST = dt.timezone(dt.timedelta(hours=9), name="JST")
 TZ_LABEL = "JST"
 
@@ -42,6 +45,12 @@ BUCKETS = [
     ("NIGHT",   "00-06", "night",   "#b026ff"),
 ]
 
+UA = f"{USER}-status-updater/1.0"
+
+
+# ============================================================
+#  GitHub events  (status dot + productive chart)
+# ============================================================
 
 def bucket_key(h: int) -> str:
     if   6 <= h < 12:  return "morning"
@@ -52,10 +61,7 @@ def bucket_key(h: int) -> str:
 
 def fetch_events(user: str) -> list[dict]:
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": f"{user}-status-updater",
-    }
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": UA}
     if token:
         headers["Authorization"] = f"Bearer {token}"
     req = urllib.request.Request(
@@ -69,7 +75,7 @@ def fetch_events(user: str) -> list[dict]:
         print(f"github api error: {exc.code} {exc.reason}", file=sys.stderr)
         return []
     except Exception as exc:
-        print(f"fetch failed: {exc}", file=sys.stderr)
+        print(f"github fetch failed: {exc}", file=sys.stderr)
         return []
 
 
@@ -164,7 +170,7 @@ f"""    <g transform="translate(0,{y})">
     )
 
     return (
-"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 230" width="600" height="230" role="img" aria-label="Productive Time UTC">
+"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 230" width="600" height="230" role="img" aria-label="Productive Time JST">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%"   stop-color="#1a0033"/>
@@ -178,8 +184,6 @@ f"""    <g transform="translate(0,{y})">
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <style><![CDATA[
-      @keyframes pulse { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
-      .live { animation: pulse 2.4s ease-in-out infinite; }
       @keyframes bracket { 0%, 100% { stroke-opacity: 0.4; } 50% { stroke-opacity: 1; } }
       .bracket { animation: bracket 2.2s ease-in-out infinite; }
     ]]></style>
@@ -211,6 +215,271 @@ f"""    <g transform="translate(0,{y})">
     )
 
 
+# ============================================================
+#  Anime + Manga  (now-playing card)
+# ============================================================
+#
+#  Priority chain per media type:
+#    1. AniList MediaListCollection (status=CURRENT)
+#    2. Jikan /users/<u>/userupdates  (recent activity, any status)
+#    3. data/now-playing.json         (manual seed)
+#
+#  Favorites always come from JSON (both AniList & Jikan favorite endpoints
+#  return empty for this account).
+# ============================================================
+
+def fetch_anilist(username: str, media_type: str) -> list[dict]:
+    """media_type in {'ANIME', 'MANGA'}."""
+    query = """
+    query ($name: String, $type: MediaType) {
+      MediaListCollection(userName: $name, type: $type, status: CURRENT) {
+        lists {
+          entries {
+            progress
+            media {
+              title { romaji english native }
+              episodes chapters siteUrl
+            }
+          }
+        }
+      }
+    }
+    """
+    body = json.dumps({"query": query, "variables": {"name": username, "type": media_type}}).encode()
+    req = urllib.request.Request(
+        "https://graphql.anilist.co",
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": UA,
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            payload = json.load(resp)
+    except Exception as exc:
+        print(f"anilist {media_type} fetch failed: {exc}", file=sys.stderr)
+        return []
+
+    out: list[dict] = []
+    collection = (payload.get("data") or {}).get("MediaListCollection") or {}
+    for lst in collection.get("lists", []):
+        for e in lst.get("entries", []):
+            media = e.get("media") or {}
+            title = (media.get("title") or {})
+            display = title.get("english") or title.get("romaji") or title.get("native") or "?"
+            total = media.get("episodes") or media.get("chapters")
+            progress = e.get("progress", 0)
+            sub = f"ep {progress}/{total}" if total else (f"ep {progress}" if progress else "")
+            out.append({"title": display, "subtitle": sub, "url": media.get("siteUrl"), "src": "anilist"})
+    return out
+
+
+def fetch_jikan(username: str, kind: str) -> list[dict]:
+    """kind in {'anime', 'manga'}. Returns recent updates filtered to that media type."""
+    req = urllib.request.Request(
+        f"https://api.jikan.moe/v4/users/{username}/userupdates",
+        headers={"User-Agent": UA},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            payload = json.load(resp)
+    except Exception as exc:
+        print(f"jikan {kind} fetch failed: {exc}", file=sys.stderr)
+        return []
+
+    out: list[dict] = []
+    items = (payload.get("data") or {}).get(kind, []) or []
+    for item in items:
+        entry = item.get("entry") or {}
+        title = entry.get("title") or "?"
+        status = item.get("status") or ""
+        seen   = item.get("episodes_seen") or item.get("chapters_read")
+        total  = item.get("episodes_total") or item.get("chapters_total")
+        if seen and total:
+            sub = f"{status.lower()} · {seen}/{total}"
+        elif status:
+            sub = status.lower()
+        else:
+            sub = ""
+        out.append({"title": title, "subtitle": sub, "url": entry.get("url"), "src": "mal"})
+    return out
+
+
+def load_now_playing_json() -> dict:
+    if not NOW_PLAYING_JSON.exists():
+        return {}
+    try:
+        return json.loads(NOW_PLAYING_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"reading {NOW_PLAYING_JSON.name} failed: {exc}", file=sys.stderr)
+        return {}
+
+
+CURRENT_CAP = 1  # keep card compact — show favorite + 1 current per section
+
+
+def resolve_section(
+    json_section: dict,
+    anilist_entries: list[dict],
+    jikan_entries: list[dict],
+) -> dict:
+    """Build {favorite, current[], src} for one media type using the priority chain."""
+    if anilist_entries:
+        current, src = anilist_entries[:CURRENT_CAP], "anilist"
+    elif jikan_entries:
+        current, src = jikan_entries[:CURRENT_CAP], "mal"
+    else:
+        current = [
+            {"title": it.get("title", "?"), "subtitle": it.get("subtitle", ""), "src": "json"}
+            for it in (json_section.get("current") or [])
+        ][:CURRENT_CAP]
+        src = "json"
+    return {
+        "favorite": json_section.get("favorite"),
+        "current": current,
+        "src": src,
+    }
+
+
+def escape_xml(s: str) -> str:
+    return (
+        s.replace("&", "&amp;")
+         .replace("<", "&lt;")
+         .replace(">", "&gt;")
+         .replace('"', "&quot;")
+    )
+
+
+def truncate(s: str, n: int) -> str:
+    return s if len(s) <= n else s[: n - 1] + "…"
+
+
+def render_now_playing_svg(
+    anime: dict,
+    manga: dict,
+    updated_at: dt.datetime,
+) -> str:
+    W = 360
+    H = 200
+    ROW_FAV = 22      # favorite row (title + small subtitle)
+    ROW_CUR = 18      # current row (single line)
+    SEC_HEAD_H = 14
+    lines: list[str] = []
+
+    def header(y: int, label: str, src: str) -> str:
+        return (
+            f'<text x="24" y="{y}" font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#00f0ff">▸ {label}</text>'
+            f'<text x="{W-24}" y="{y}" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">via {src}</text>'
+        )
+
+    def fav_row(y: int, color: str, title: str, subtitle: str) -> str:
+        title = escape_xml(truncate(title, 30))
+        subtitle = escape_xml(truncate(subtitle, 38)) if subtitle else ""
+        out = (
+            f'<text x="34" y="{y}" font-family="ui-monospace, monospace" font-size="11" fill="{color}">★</text>'
+            f'<text x="48" y="{y}" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">{title}</text>'
+        )
+        if subtitle:
+            out += f'<text x="48" y="{y+11}" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">{subtitle}</text>'
+        return out
+
+    def cur_row(y: int, color: str, title: str, subtitle: str) -> str:
+        # single-line: title — subtitle (compact)
+        title = truncate(title, 26)
+        if subtitle:
+            text = f"{title} · {truncate(subtitle, 36 - len(title))}"
+        else:
+            text = title
+        text = escape_xml(truncate(text, 40))
+        return (
+            f'<text x="34" y="{y}" font-family="ui-monospace, monospace" font-size="11" fill="{color}">▸</text>'
+            f'<text x="48" y="{y}" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">{text}</text>'
+        )
+
+    def divider(y: int) -> str:
+        return f'<line x1="24" y1="{y}" x2="{W-24}" y2="{y}" stroke="#00f0ff" stroke-opacity="0.18"/>'
+
+    # ------------- ANIME -------------
+    y = 54
+    lines.append(header(y, "ANIME", anime["src"] if anime.get("current") else "json"))
+    y += SEC_HEAD_H
+    if anime.get("favorite"):
+        lines.append(fav_row(y, "#ffb700", anime["favorite"]["title"], anime["favorite"].get("subtitle", "")))
+        y += ROW_FAV
+    for it in anime.get("current", []):
+        lines.append(cur_row(y, "#00f0ff", it["title"], it.get("subtitle", "")))
+        y += ROW_CUR
+
+    # divider
+    y += 2
+    lines.append(divider(y))
+
+    # ------------- MANGA -------------
+    y += 10
+    lines.append(header(y, "MANGA", manga["src"] if manga.get("current") else "json"))
+    y += SEC_HEAD_H
+    if manga.get("favorite"):
+        lines.append(fav_row(y, "#ff79c6", manga["favorite"]["title"], manga["favorite"].get("subtitle", "")))
+        y += ROW_FAV
+    for it in manga.get("current", []):
+        lines.append(cur_row(y, "#ff79c6", it["title"], it.get("subtitle", "")))
+        y += ROW_CUR
+
+    # footer
+    foot_y = H - 8
+    lines.append(
+        f'<text x="24" y="{foot_y}" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">▸ now playing</text>'
+        f'<text x="{W-24}" y="{foot_y}" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">'
+        f'updated · {updated_at.astimezone(JST):%H:%M} {TZ_LABEL}</text>'
+    )
+
+    body = "\n  ".join(lines)
+
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="Now Playing">
+  <defs>
+    <linearGradient id="np-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#1a0033"/>
+      <stop offset="100%" stop-color="#000814"/>
+    </linearGradient>
+    <pattern id="np-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M20 0 H0 V20" fill="none" stroke="#00f0ff" stroke-opacity="0.05"/>
+    </pattern>
+    <linearGradient id="np-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#ff79c6"/>
+    </linearGradient>
+    <style><![CDATA[
+      @keyframes bracket {{ 0%, 100% {{ stroke-opacity: 0.45; }} 50% {{ stroke-opacity: 1; }} }}
+      .bracket {{ animation: bracket 2.2s ease-in-out infinite; }}
+    ]]></style>
+  </defs>
+
+  <rect width="{W}" height="{H}" rx="14" fill="url(#np-bg)"/>
+  <rect width="{W}" height="{H}" rx="14" fill="url(#np-grid)"/>
+  <rect width="{W}" height="{H}" rx="14" fill="none" stroke="url(#np-border)" stroke-width="1.4"/>
+
+  <g class="bracket" stroke="#00f0ff" stroke-width="1.5" fill="none">
+    <polyline points="14,26 14,14 26,14"/>
+    <polyline points="{W-26},14 {W-14},14 {W-14},26"/>
+    <polyline points="14,{H-26} 14,{H-14} 26,{H-14}"/>
+    <polyline points="{W-26},{H-14} {W-14},{H-14} {W-14},{H-26}"/>
+  </g>
+
+  <text x="24"   y="36" font-family="ui-monospace, monospace" font-size="13" font-weight="700" fill="#00f0ff">▸ NOW PLAYING</text>
+  <text x="{W-24}" y="36" font-family="ui-monospace, monospace" font-size="10" text-anchor="end" fill="#888">{TZ_LABEL}</text>
+  <line x1="24" y1="50" x2="{W-24}" y2="50" stroke="#00f0ff" stroke-opacity="0.3"/>
+
+  {body}
+</svg>
+"""
+
+
+# ============================================================
+#  Main
+# ============================================================
+
 def main() -> int:
     events = fetch_events(USER)
     latest = find_latest_push(events)
@@ -219,16 +488,37 @@ def main() -> int:
 
     changed_char = patch_character(status, color, push_str)
 
-    new_prod = render_productive_svg(counts, latest, dt.datetime.now(dt.timezone.utc))
+    now = dt.datetime.now(dt.timezone.utc)
+    new_prod = render_productive_svg(counts, latest, now)
     existing = PRODUCTIVE_SVG.read_text(encoding="utf-8") if PRODUCTIVE_SVG.exists() else ""
     changed_prod = new_prod != existing
     if changed_prod:
         PRODUCTIVE_SVG.write_text(new_prod, encoding="utf-8")
 
-    print(f"status:  {status} · {push_str}")
-    print(f"buckets: {counts}")
-    print(f"character.svg changed: {changed_char}")
+    # ---- now playing ----
+    json_data = load_now_playing_json()
+    al_anime = fetch_anilist(USER, "ANIME")
+    al_manga = fetch_anilist(USER, "MANGA")
+    jk_anime = fetch_jikan(USER, "anime") if not al_anime else []
+    jk_manga = fetch_jikan(USER, "manga") if not al_manga else []
+
+    anime = resolve_section(json_data.get("anime") or {}, al_anime, jk_anime)
+    manga = resolve_section(json_data.get("manga") or {}, al_manga, jk_manga)
+
+    new_np = render_now_playing_svg(anime, manga, now)
+    existing_np = NOW_PLAYING_SVG.read_text(encoding="utf-8") if NOW_PLAYING_SVG.exists() else ""
+    changed_np = new_np != existing_np
+    if changed_np:
+        NOW_PLAYING_SVG.parent.mkdir(parents=True, exist_ok=True)
+        NOW_PLAYING_SVG.write_text(new_np, encoding="utf-8")
+
+    print(f"status:   {status} · {push_str}")
+    print(f"buckets:  {counts}")
+    print(f"anime src: {anime['src']} · {len(anime.get('current') or [])} current")
+    print(f"manga src: {manga['src']} · {len(manga.get('current') or [])} current")
+    print(f"character.svg  changed: {changed_char}")
     print(f"productive.svg changed: {changed_prod}")
+    print(f"now-playing.svg changed: {changed_np}")
     return 0
 
 

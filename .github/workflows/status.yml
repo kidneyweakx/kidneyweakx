@@ -28,12 +28,12 @@ jobs:
 
       - name: Commit & push if changed
         run: |
-          if git diff --quiet -- assets/character.svg assets/productive.svg; then
+          if git diff --quiet -- assets/character.svg assets/productive.svg assets/now-playing.svg; then
             echo "no changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/character.svg assets/productive.svg
-          git commit -m "chore(status): refresh commit-activity assets [skip ci]"
+          git add assets/character.svg assets/productive.svg assets/now-playing.svg
+          git commit -m "chore(status): refresh commit-activity + now-playing assets [skip ci]"
           git push

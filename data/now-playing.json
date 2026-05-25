@@ -1,0 +1,22 @@
+{
+  "_": "edit this file to update the NOW PLAYING card. push to trigger re-render.",
+  "anime": {
+    "favorite": {
+      "title": "Yuru Camp△",
+      "subtitle": "peak comfy · all-time favorite"
+    },
+    "current": []
+  },
+  "manga": {
+    "favorite": {
+      "title": "Usogui",
+      "subtitle": "噬謊者 · all-time favorite"
+    },
+    "current": [
+      {
+        "title": "Isekai Ojisan",
+        "subtitle": "異世界叔叔 · current pick"
+      }
+    ]
+  }
+}

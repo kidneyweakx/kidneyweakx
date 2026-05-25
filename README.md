@@ -20,6 +20,8 @@
 
 <a href="https://kidneyweakx.com" title="kidneyweakx.com"><img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/master/assets/character.svg" alt="kidneyweakx" width="320"/></a>
 
+<img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/master/assets/now-playing.svg" alt="now playing" width="320"/>
+
 </td>
 <td width="60%" valign="top">
 
@@ -36,11 +38,11 @@ best_girl : Kurumi Tokisaki
 fuel      : touhou piano + taiwanese tea
 ```
 
+<img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/master/assets/productive.svg" alt="productive time (JST)" width="100%"/>
+
 </td>
 </tr>
 </table>
-
-<br/>
 
 <!-- =================== STACK =================== -->
 
@@ -87,30 +89,3 @@ fuel      : touhou piano + taiwanese tea
 </tr>
 </table>
 
-<br/>
-
-<!-- =================== CONTRIBUTION SNAKE =================== -->
-
-## 🐍 Contribution Feed
-
-<div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/output/github-snake-neon.svg"/>
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/output/github-snake.svg"/>
-  <img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/output/github-snake-neon.svg" alt="snake eating my contributions"/>
-</picture>
-
-</div>
-
-<br/>
-
-<!-- =================== PRODUCTIVE TIME (UTC) =================== -->
-
-## ⏰ Productive Time · `JST`
-
-<div align="center">
-
-<img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/master/assets/productive.svg" alt="productive time distribution (UTC)"/>
-
-</div>
