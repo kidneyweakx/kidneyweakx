@@ -89,3 +89,14 @@ fuel      : touhou piano + taiwanese tea
 </tr>
 </table>
 
+<!-- =================== SNAKE FOOTER =================== -->
+
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/output/github-snake-neon.svg"/>
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/output/github-snake.svg"/>
+  <img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/output/github-snake-neon.svg" alt="snake eating my contributions" width="100%"/>
+</picture>
+
+</div>
