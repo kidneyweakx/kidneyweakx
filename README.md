@@ -18,7 +18,7 @@
 <tr>
 <td width="40%" align="center" valign="top">
 
-<img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/master/assets/character.svg" alt="kidneyweakx" width="320"/>
+<a href="https://kidneyweakx.com" title="kidneyweakx.com"><img src="https://raw.githubusercontent.com/kidneyweakx/kidneyweakx/master/assets/character.svg" alt="kidneyweakx" width="320"/></a>
 
 </td>
 <td width="60%" valign="top">
