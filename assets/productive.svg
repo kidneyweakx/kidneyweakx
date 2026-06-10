@@ -37,7 +37,7 @@
       <text x="24" y="14" font-family="ui-monospace, monospace" font-size="11" fill="#00f0ff">▸ MORNING</text>
       <text x="108" y="14" font-family="ui-monospace, monospace" font-size="9"  fill="#5a6275">06-12 JST</text>
       <rect x="210" y="3" width="290" height="18" rx="3" fill="#0a0a1a" stroke="#1a1a2e" stroke-width="1"/>
-      <rect x="210" y="3" width="64" height="18" rx="3" fill="#ffb700" opacity="0.9" filter="url(#glow)"/>
+      <rect x="210" y="3" width="62" height="18" rx="3" fill="#ffb700" opacity="0.9" filter="url(#glow)"/>
       <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">6</text>
       <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">10%</text>
     </g>
@@ -46,14 +46,14 @@
       <text x="108" y="14" font-family="ui-monospace, monospace" font-size="9"  fill="#5a6275">12-18 JST</text>
       <rect x="210" y="3" width="290" height="18" rx="3" fill="#0a0a1a" stroke="#1a1a2e" stroke-width="1"/>
       <rect x="210" y="3" width="290" height="18" rx="3" fill="#00f0ff" opacity="0.9" filter="url(#glow)"/>
-      <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">27</text>
-      <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">44%</text>
+      <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">28</text>
+      <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">46%</text>
     </g>
     <g transform="translate(0,134)">
       <text x="24" y="14" font-family="ui-monospace, monospace" font-size="11" fill="#00f0ff">▸ EVENING</text>
       <text x="108" y="14" font-family="ui-monospace, monospace" font-size="9"  fill="#5a6275">18-24 JST</text>
       <rect x="210" y="3" width="290" height="18" rx="3" fill="#0a0a1a" stroke="#1a1a2e" stroke-width="1"/>
-      <rect x="210" y="3" width="42" height="18" rx="3" fill="#ff79c6" opacity="0.9" filter="url(#glow)"/>
+      <rect x="210" y="3" width="41" height="18" rx="3" fill="#ff79c6" opacity="0.9" filter="url(#glow)"/>
       <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">4</text>
       <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">7%</text>
     </g>
@@ -61,12 +61,12 @@
       <text x="24" y="14" font-family="ui-monospace, monospace" font-size="11" fill="#00f0ff">▸ NIGHT</text>
       <text x="108" y="14" font-family="ui-monospace, monospace" font-size="9"  fill="#5a6275">00-06 JST</text>
       <rect x="210" y="3" width="290" height="18" rx="3" fill="#0a0a1a" stroke="#1a1a2e" stroke-width="1"/>
-      <rect x="210" y="3" width="257" height="18" rx="3" fill="#b026ff" opacity="0.9" filter="url(#glow)"/>
-      <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">24</text>
-      <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">39%</text>
+      <rect x="210" y="3" width="238" height="18" rx="3" fill="#b026ff" opacity="0.9" filter="url(#glow)"/>
+      <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">23</text>
+      <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">38%</text>
     </g>
 
   <line x1="24" y1="200" x2="580" y2="200" stroke="#00f0ff" stroke-opacity="0.2"/>
-  <text x="24"  y="218" font-family="ui-monospace, monospace" font-size="9" fill="#5a6275">▸ last push · 16:44 JST</text>
-  <text x="580" y="218" font-family="ui-monospace, monospace" font-size="9" text-anchor="end" fill="#5a6275">updated · 2026-06-10 13:48 JST</text>
+  <text x="24"  y="218" font-family="ui-monospace, monospace" font-size="9" fill="#5a6275">▸ last push · 17:00 JST</text>
+  <text x="580" y="218" font-family="ui-monospace, monospace" font-size="9" text-anchor="end" fill="#5a6275">updated · 2026-06-11 01:08 JST</text>
 </svg>
