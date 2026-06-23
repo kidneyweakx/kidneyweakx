@@ -68,5 +68,5 @@
 
   <line x1="24" y1="200" x2="580" y2="200" stroke="#00f0ff" stroke-opacity="0.2"/>
   <text x="24"  y="218" font-family="ui-monospace, monospace" font-size="9" fill="#5a6275">▸ last push · 01:21 JST</text>
-  <text x="580" y="218" font-family="ui-monospace, monospace" font-size="9" text-anchor="end" fill="#5a6275">updated · 2026-06-23 13:20 JST</text>
+  <text x="580" y="218" font-family="ui-monospace, monospace" font-size="9" text-anchor="end" fill="#5a6275">updated · 2026-06-24 00:24 JST</text>
 </svg>
