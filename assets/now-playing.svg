@@ -1,42 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" width="360" height="200" role="img" aria-label="Now Playing">
-  <defs>
-    <linearGradient id="np-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#1a0033"/>
-      <stop offset="100%" stop-color="#000814"/>
-    </linearGradient>
-    <pattern id="np-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M20 0 H0 V20" fill="none" stroke="#00f0ff" stroke-opacity="0.05"/>
-    </pattern>
-    <linearGradient id="np-border" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#00f0ff"/>
-      <stop offset="100%" stop-color="#ff79c6"/>
-    </linearGradient>
-    <style><![CDATA[
-      @keyframes bracket { 0%, 100% { stroke-opacity: 0.45; } 50% { stroke-opacity: 1; } }
-      .bracket { animation: bracket 2.2s ease-in-out infinite; }
-    ]]></style>
-  </defs>
-
-  <rect width="360" height="200" rx="14" fill="url(#np-bg)"/>
-  <rect width="360" height="200" rx="14" fill="url(#np-grid)"/>
-  <rect width="360" height="200" rx="14" fill="none" stroke="url(#np-border)" stroke-width="1.4"/>
-
-  <g class="bracket" stroke="#00f0ff" stroke-width="1.5" fill="none">
-    <polyline points="14,26 14,14 26,14"/>
-    <polyline points="334,14 346,14 346,26"/>
-    <polyline points="14,174 14,186 26,186"/>
-    <polyline points="334,186 346,186 346,174"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 236" width="360" height="236" role="img" aria-label="Now watching and reading">
+  <style><![CDATA[
+    @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .body { animation: in 600ms cubic-bezier(.22,1,.36,1) 150ms both; }
+    @media (prefers-reduced-motion: reduce) { .body { animation: none; } }
+  ]]></style>
+  <g font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;Hiragino Sans&quot;, &quot;Noto Sans JP&quot;, Helvetica, Arial, sans-serif">
+  <rect width="360" height="236" rx="16" fill="#1b1923"/>
+  <text x="24" y="38" font-size="16" font-weight="700" fill="#f3ece8">Now watching</text>
+  <text x="336" y="38" font-size="10" text-anchor="end" fill="#8a86a3">updated 15:47 JST</text>
+  <g class="body">
+    <text x="24" y="66" font-size="11" font-weight="700" letter-spacing="1.5" fill="#c9c3e6">ANIME</text><text x="336" y="66" font-size="10" text-anchor="end" fill="#8a86a3">via json</text>
+    <rect x="24" y="80" width="3" height="25" rx="1.5" fill="#de5b94"/><text x="36" y="90" font-size="13" font-weight="600" fill="#f3ece8">Yuru Camp△<tspan fill="#8a86a3" font-size="10" font-weight="400" dx="6">fav</tspan></text><text x="36" y="104" font-size="10.5" fill="#8a86a3">peak comfy · all-time favorite</text>
+    <line x1="24" y1="116" x2="336" y2="116" stroke="#2a2836"/>
+    <text x="24" y="136" font-size="11" font-weight="700" letter-spacing="1.5" fill="#c9c3e6">MANGA</text><text x="336" y="136" font-size="10" text-anchor="end" fill="#8a86a3">via json</text>
+    <rect x="24" y="150" width="3" height="25" rx="1.5" fill="#de5b94"/><text x="36" y="160" font-size="13" font-weight="600" fill="#f3ece8">Usogui<tspan fill="#8a86a3" font-size="10" font-weight="400" dx="6">fav</tspan></text><text x="36" y="174" font-size="10.5" fill="#8a86a3">噬謊者 · all-time favorite</text>
+    <rect x="24" y="184" width="3" height="25" rx="1.5" fill="#3fb4d8"/><text x="36" y="194" font-size="13" font-weight="600" fill="#f3ece8">Isekai Ojisan<tspan fill="#8a86a3" font-size="10" font-weight="400" dx="6">now</tspan></text><text x="36" y="208" font-size="10.5" fill="#8a86a3">異世界叔叔 · current pick</text>
   </g>
-
-  <text x="24"   y="36" font-family="ui-monospace, monospace" font-size="13" font-weight="700" fill="#00f0ff">▸ NOW PLAYING</text>
-  <text x="336" y="36" font-family="ui-monospace, monospace" font-size="10" text-anchor="end" fill="#888">JST</text>
-  <line x1="24" y1="50" x2="336" y2="50" stroke="#00f0ff" stroke-opacity="0.3"/>
-
-  <text x="24" y="54" font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#00f0ff">▸ ANIME</text><text x="336" y="54" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">via json</text>
-  <text x="34" y="68" font-family="ui-monospace, monospace" font-size="11" fill="#ffb700">★</text><text x="48" y="68" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">Yuru Camp△</text><text x="48" y="79" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">peak comfy · all-time favorite</text>
-  <line x1="24" y1="92" x2="336" y2="92" stroke="#00f0ff" stroke-opacity="0.18"/>
-  <text x="24" y="102" font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#00f0ff">▸ MANGA</text><text x="336" y="102" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">via json</text>
-  <text x="34" y="116" font-family="ui-monospace, monospace" font-size="11" fill="#ff79c6">★</text><text x="48" y="116" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">Usogui</text><text x="48" y="127" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">噬謊者 · all-time favorite</text>
-  <text x="34" y="138" font-family="ui-monospace, monospace" font-size="11" fill="#ff79c6">▸</text><text x="48" y="138" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">Isekai Ojisan · 異世界叔叔 · current pick</text>
-  <text x="24" y="192" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">▸ now playing</text><text x="336" y="192" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">updated · 14:47 JST</text>
+  </g>
 </svg>

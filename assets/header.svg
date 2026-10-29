@@ -1,125 +1,67 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 170" width="900" height="170" role="img" aria-label="KIDNEYWEAKX header">
-  <title>KIDNEYWEAKX · neon header</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200" role="img" aria-label="kidneyweakx — software engineer in Tokyo">
+  <title>kidneyweakx</title>
 
+  <!-- Palette lifted from the avatar: dusk wall, hoodie ink, hair streaks, eyes. -->
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%"   stop-color="#1a0033"/>
-      <stop offset="50%"  stop-color="#000814"/>
-      <stop offset="100%" stop-color="#0a001f"/>
-    </linearGradient>
-
-    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%"   stop-color="#00f0ff"/>
-      <stop offset="50%"  stop-color="#ff79c6"/>
-      <stop offset="100%" stop-color="#b026ff"/>
-    </linearGradient>
-
-    <linearGradient id="under" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%"   stop-color="transparent"/>
-      <stop offset="50%"  stop-color="#00f0ff"/>
-      <stop offset="100%" stop-color="transparent"/>
-    </linearGradient>
-
-    <!-- soft shine streak: transparent → white → transparent -->
-    <linearGradient id="shineGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0"/>
-      <stop offset="45%"  stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="55%"  stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-    </linearGradient>
-
-    <!-- clip to the title row so the shine only sweeps over the text -->
-    <clipPath id="titleBand">
-      <rect x="0" y="60" width="900" height="80"/>
+    <clipPath id="card"><rect width="900" height="200" rx="16"/></clipPath>
+    <clipPath id="wipe">
+      <rect class="wipe" x="40" y="60" width="560" height="90"/>
     </clipPath>
-
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M40 0 H0 V40" fill="none" stroke="#00f0ff" stroke-opacity="0.08"/>
-    </pattern>
-
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
 
   <style><![CDATA[
-    @keyframes drift { to { transform: translateX(-40px); } }
-    .grid-mv { animation: drift 4s linear infinite; }
+    .sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", Helvetica, Arial, sans-serif; }
 
-    @keyframes glitch {
-      0%, 96%, 100% { transform: translate(0,0); }
-      97%           { transform: translate(2px,-1px); }
-      98%           { transform: translate(-2px,1px); }
-      99%           { transform: translate(1px,0); }
+    /* the name is revealed left to right, like a pen stroke */
+    @keyframes wipe { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .wipe { transform-origin: 40px 0; animation: wipe 900ms cubic-bezier(.65,0,.35,1) 150ms both; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .rise   { animation: rise 700ms cubic-bezier(.22,1,.36,1) both; }
+    .rise-1 { animation-delay: 700ms; }
+    .rise-2 { animation-delay: 850ms; }
+
+    /* sleeve stripes draw in once, then sway a few pixels */
+    @keyframes draw { from { stroke-dashoffset: 520; } to { stroke-dashoffset: 0; } }
+    .stripe { stroke-dasharray: 520; animation: draw 1100ms cubic-bezier(.65,0,.35,1) both; }
+    .s-blue { animation-delay: 250ms; }
+    .s-pink { animation-delay: 420ms; }
+    @keyframes sway { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-6px); } }
+    .sleeve { animation: sway 7s ease-in-out 1.6s infinite; }
+
+    /* heterochromia — red / green — blinks now and then */
+    @keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 6s ease-in-out 2s infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wipe, .rise, .stripe, .sleeve, .eyes { animation: none; }
     }
-    .title { animation: glitch 5s infinite; }
-
-    @keyframes shine {
-      0%   { transform: translateX(-500px) skewX(-20deg); opacity: 0; }
-      15%  { opacity: 1; }
-      85%  { opacity: 1; }
-      100% { transform: translateX(500px) skewX(-20deg); opacity: 0; }
-    }
-    .shine { animation: shine 5s ease-in-out infinite; mix-blend-mode: screen; }
-
-    @keyframes tickerLeft  { to { transform: translateX(-200%); } }
-    .ticker { animation: tickerLeft 28s linear infinite; }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%      { opacity: 0.25; }
-    }
-    .dot { animation: blink 1.2s ease-in-out infinite; }
   ]]></style>
 
-  <!-- Background -->
-  <rect width="900" height="170" fill="url(#bg)"/>
-  <g class="grid-mv">
-    <rect x="-40" y="0" width="980" height="170" fill="url(#grid)"/>
+  <g clip-path="url(#card)">
+    <rect width="900" height="200" fill="#403b66"/>
+    <!-- hoodie hem along the bottom -->
+    <rect y="184" width="900" height="16" fill="#1b1923"/>
+
+    <g class="sleeve" fill="none" stroke-linejoin="miter" stroke-linecap="butt">
+      <path class="stripe s-blue" d="M610 230 L735 105 L940 105" stroke="#3fb4d8" stroke-width="26"/>
+      <path class="stripe s-pink" d="M660 230 L755 135 L940 135" stroke="#de5b94" stroke-width="16"/>
+    </g>
   </g>
 
-  <!-- Top HUD strip -->
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#00f0ff">
-    <rect x="0" y="0" width="900" height="20" fill="#000" fill-opacity="0.5"/>
-    <text x="12" y="14">▸ SYS://kidneyweakx.com</text>
-    <circle cx="170" cy="10" r="3" fill="#39ff14" class="dot"/>
-    <text x="180" y="14">ONLINE</text>
-    <text x="880" y="14" text-anchor="end" opacity="0.8">TOKYO · UTC+9</text>
-  </g>
+  <g class="sans">
+    <g class="rise rise-1" fill="#c9c3e6" font-size="13" letter-spacing="2">
+      <g class="eyes">
+        <circle cx="47" cy="47" r="4" fill="#d0435a"/>
+        <circle cx="61" cy="47" r="4" fill="#4f9e5a"/>
+      </g>
+      <text x="76" y="52">東京 · JST+9</text>
+    </g>
 
-  <!-- Big title -->
-  <g class="title" filter="url(#glow)">
-    <text x="450" y="115" text-anchor="middle"
-          font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-          font-size="72" font-weight="900"
-          fill="url(#title)" letter-spacing="6">
-      KIDNEYWEAKX
-    </text>
-  </g>
+    <g clip-path="url(#wipe)">
+      <text x="40" y="128" font-size="70" font-weight="800" letter-spacing="-2" fill="#f3ece8">kidneyweakx</text>
+    </g>
 
-  <!-- Subtitle -->
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14"
-     fill="#ff79c6" letter-spacing="4">
-    <text x="450" y="142" text-anchor="middle" opacity="0.85">
-      software engineer · tokyo · エンジニア
-    </text>
-  </g>
-
-  <!-- Animated underline -->
-  <rect x="220" y="152" width="460" height="2" fill="url(#under)"/>
-
-  <!-- Moving shine — narrow gradient streak, clipped to the title band -->
-  <g clip-path="url(#titleBand)">
-    <rect class="shine" x="200" y="60" width="160" height="80"
-          fill="url(#shineGrad)"/>
-  </g>
-
-  <!-- Corner brackets -->
-  <g stroke="#00f0ff" stroke-width="2" fill="none" opacity="0.7">
-    <polyline points="20,30 20,20 30,20"/>
-    <polyline points="870,20 880,20 880,30"/>
-    <polyline points="20,140 20,150 30,150"/>
-    <polyline points="870,150 880,150 880,140"/>
+    <text class="rise rise-2" x="42" y="162" font-size="16" fill="#c9c3e6" letter-spacing=".5">software engineer — fullstack · iOS / Android · web3</text>
   </g>
 </svg>

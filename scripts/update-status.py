@@ -7,7 +7,7 @@ Outputs:
        <text   id="status-push">    "last push · HH:MM JST · Nh ago"
        <text   id="status-text">    ONLINE / IDLE / AFK
 
-  2. assets/productive.svg   — cyberpunk bar chart of commit activity
+  2. assets/productive.svg   — bar chart of commit activity
                                 by JST bucket (morning / daytime / evening / night).
 
   3. assets/now-playing.svg  — anime + manga currently / favorite, with
@@ -34,15 +34,26 @@ NOW_PLAYING_JSON = ROOT / "data"   / "now-playing.json"
 JST = dt.timezone(dt.timedelta(hours=9), name="JST")
 TZ_LABEL = "JST"
 
-ONLINE = ("ONLINE", "#39ff14")
-IDLE   = ("IDLE",   "#ffb700")
-AFK    = ("AFK",    "#888888")
+# Palette lifted from the avatar — keep in sync with assets/header.svg.
+INK    = "#1b1923"   # hoodie
+DUSK   = "#403b66"   # wall behind her
+TRACK  = "#2a2836"
+PAPER  = "#f3ece8"   # skin highlight
+MUTED  = "#8a86a3"
+LILAC  = "#c9c3e6"
+BLUE   = "#3fb4d8"   # hair streak
+PINK   = "#de5b94"   # sleeve stripe
+SANS   = "ui-sans-serif, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;Hiragino Sans&quot;, &quot;Noto Sans JP&quot;, Helvetica, Arial, sans-serif"
+
+ONLINE = ("ONLINE", "#6fbf73")
+IDLE   = ("IDLE",   "#e2b25a")
+AFK    = ("AFK",    MUTED)
 
 BUCKETS = [
-    ("MORNING", "06-12", "morning", "#ffb700"),
-    ("DAYTIME", "12-18", "daytime", "#00f0ff"),
-    ("EVENING", "18-24", "evening", "#ff79c6"),
-    ("NIGHT",   "00-06", "night",   "#b026ff"),
+    ("Morning", "06–12", "morning", "#e2b25a"),
+    ("Daytime", "12–18", "daytime", BLUE),
+    ("Evening", "18–24", "evening", PINK),
+    ("Night",   "00–06", "night",   "#9a8fe0"),
 ]
 
 UA = f"{USER}-status-updater/1.0"
@@ -144,75 +155,52 @@ def render_productive_svg(
 ) -> str:
     total = sum(counts.values())
     max_c = max(counts.values()) if counts else 0
-    BAR_X, BAR_W, BAR_H, ROW_GAP, Y0 = 210, 290, 18, 32, 70
+    # 360 wide like the avatar card; with now-playing (H_NOW) and a 12px gap
+    # the right column lands exactly at the card's 422px.
+    W, H = 360, 180
+    BAR_X, BAR_W, BAR_H, ROW_GAP, Y0 = 130, 150, 10, 24, 58
 
     rows: list[str] = []
     for i, (label, rng, key, color) in enumerate(BUCKETS):
         c = counts.get(key, 0)
         pct = (c / max_c) if max_c else 0
-        bar_w = max(int(BAR_W * pct), (4 if c == 0 else 8))
+        bar_w = max(int(BAR_W * pct), 6)
         pct_total = int(round(c / total * 100)) if total else 0
         y = Y0 + i * ROW_GAP
         rows.append(
-f"""    <g transform="translate(0,{y})">
-      <text x="24" y="14" font-family="ui-monospace, monospace" font-size="11" fill="#00f0ff">▸ {label}</text>
-      <text x="108" y="14" font-family="ui-monospace, monospace" font-size="9"  fill="#5a6275">{rng} JST</text>
-      <rect x="{BAR_X}" y="3" width="{BAR_W}" height="{BAR_H}" rx="3" fill="#0a0a1a" stroke="#1a1a2e" stroke-width="1"/>
-      <rect x="{BAR_X}" y="3" width="{bar_w}" height="{BAR_H}" rx="3" fill="{color}" opacity="0.9" filter="url(#glow)"/>
-      <text x="540" y="14" font-family="ui-monospace, monospace" font-size="11" text-anchor="end" fill="#e8f7ff">{c}</text>
-      <text x="582" y="14" font-family="ui-monospace, monospace" font-size="9"  text-anchor="end" fill="#5a6275">{pct_total}%</text>
-    </g>"""
+f"""  <g transform="translate(0,{y})">
+    <text x="24" y="10" font-size="12" font-weight="600" fill="{PAPER}">{label}</text>
+    <text x="84" y="10" font-size="10" fill="{MUTED}">{rng}</text>
+    <rect x="{BAR_X}" y="0" width="{BAR_W}" height="{BAR_H}" rx="5" fill="{TRACK}"/>
+    <rect class="bar" style="animation-delay:{200 + i * 90}ms" x="{BAR_X}" y="0" width="{bar_w}" height="{BAR_H}" rx="5" fill="{color}"/>
+    <text x="{W - 24}" y="10" font-size="11" font-weight="600" text-anchor="end" fill="{PAPER}">{c}<tspan fill="{MUTED}" font-weight="400" dx="5">{pct_total}%</tspan></text>
+  </g>"""
         )
 
     push_str = (
-        f"last push · {latest.astimezone(JST):%H:%M} {TZ_LABEL}"
+        f"last push {latest.astimezone(JST):%H:%M} {TZ_LABEL}"
         if latest else "no recent push"
     )
 
-    return (
-"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 230" width="600" height="230" role="img" aria-label="Productive Time JST">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#1a0033"/>
-      <stop offset="100%" stop-color="#000814"/>
-    </linearGradient>
-    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M20 0 H0 V20" fill="none" stroke="#00f0ff" stroke-opacity="0.05"/>
-    </pattern>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <style><![CDATA[
-      @keyframes bracket { 0%, 100% { stroke-opacity: 0.4; } 50% { stroke-opacity: 1; } }
-      .bracket { animation: bracket 2.2s ease-in-out infinite; }
-    ]]></style>
-  </defs>
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="When I commit (JST)">
+  <style><![CDATA[
+    @keyframes grow {{ from {{ transform: scaleX(0); }} to {{ transform: scaleX(1); }} }}
+    .bar {{ transform-box: fill-box; transform-origin: left; animation: grow 900ms cubic-bezier(.22,1,.36,1) both; }}
+    @media (prefers-reduced-motion: reduce) {{ .bar {{ animation: none; }} }}
+  ]]></style>
+  <g font-family="{SANS}">
+  <rect width="{W}" height="{H}" rx="16" fill="{INK}"/>
 
-  <rect width="600" height="230" rx="14" fill="url(#bg)"/>
-  <rect width="600" height="230" rx="14" fill="url(#grid)"/>
-  <rect width="600" height="230" rx="14" fill="none" stroke="#00f0ff" stroke-opacity="0.55" stroke-width="1.2"/>
+  <text x="24" y="38" font-size="16" font-weight="700" fill="{PAPER}">When I commit</text>
+  <text x="{W - 24}" y="38" font-size="10" text-anchor="end" fill="{MUTED}">{TZ_LABEL} · last {total} events</text>
 
-  <g class="bracket" stroke="#00f0ff" stroke-width="1.5" fill="none">
-    <polyline points="14,26 14,14 26,14"/>
-    <polyline points="574,14 586,14 586,26"/>
-    <polyline points="14,204 14,216 26,216"/>
-    <polyline points="574,216 586,216 586,204"/>
+""" + "\n".join(rows) + f"""
+
+  <text x="24" y="{H - 14}" font-size="10" fill="{MUTED}">{push_str}</text>
+  <text x="{W - 24}" y="{H - 14}" font-size="10" text-anchor="end" fill="{MUTED}">updated {updated_at.astimezone(JST):%m-%d %H:%M}</text>
   </g>
-
-  <text x="24"  y="36" font-family="ui-monospace, monospace" font-size="13" font-weight="700" fill="#00f0ff">▸ PRODUCTIVE TIME · JST</text>
-  <text x="580" y="36" font-family="ui-monospace, monospace" font-size="10" text-anchor="end" fill="#888">sample · """ + str(total) + """ events</text>
-
-  <line x1="24" y1="52" x2="580" y2="52" stroke="#00f0ff" stroke-opacity="0.3"/>
-
-""" + "\n".join(rows) + """
-
-  <line x1="24" y1="200" x2="580" y2="200" stroke="#00f0ff" stroke-opacity="0.2"/>
-  <text x="24"  y="218" font-family="ui-monospace, monospace" font-size="9" fill="#5a6275">▸ """ + push_str + """</text>
-  <text x="580" y="218" font-family="ui-monospace, monospace" font-size="9" text-anchor="end" fill="#5a6275">updated · """ + f"{updated_at.astimezone(JST):%Y-%m-%d %H:%M} {TZ_LABEL}" + """</text>
 </svg>
 """
-    )
 
 
 # ============================================================
@@ -317,6 +305,7 @@ def load_now_playing_json() -> dict:
         return {}
 
 
+H_NOW = 236      # now-playing height; 236 + 180 productive + ~6px inline gap ≈ 422 card
 CURRENT_CAP = 1  # keep card compact — show favorite + 1 current per section
 
 
@@ -362,116 +351,60 @@ def render_now_playing_svg(
     updated_at: dt.datetime,
 ) -> str:
     W = 360
-    H = 200
-    ROW_FAV = 22      # favorite row (title + small subtitle)
-    ROW_CUR = 18      # current row (single line)
-    SEC_HEAD_H = 14
     lines: list[str] = []
 
     def header(y: int, label: str, src: str) -> str:
         return (
-            f'<text x="24" y="{y}" font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#00f0ff">▸ {label}</text>'
-            f'<text x="{W-24}" y="{y}" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">via {src}</text>'
+            f'<text x="24" y="{y}" font-size="11" font-weight="700" letter-spacing="1.5" fill="{LILAC}">{label}</text>'
+            f'<text x="{W-24}" y="{y}" font-size="10" text-anchor="end" fill="{MUTED}">via {src}</text>'
         )
 
-    def fav_row(y: int, color: str, title: str, subtitle: str) -> str:
-        title = escape_xml(truncate(title, 30))
-        subtitle = escape_xml(truncate(subtitle, 38)) if subtitle else ""
+    def row(y: int, color: str, mark: str, title: str, subtitle: str) -> str:
+        title = escape_xml(truncate(title, 34))
         out = (
-            f'<text x="34" y="{y}" font-family="ui-monospace, monospace" font-size="11" fill="{color}">★</text>'
-            f'<text x="48" y="{y}" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">{title}</text>'
+            f'<rect x="24" y="{y-10}" width="3" height="{25 if subtitle else 13}" rx="1.5" fill="{color}"/>'
+            f'<text x="36" y="{y}" font-size="13" font-weight="600" fill="{PAPER}">{title}'
+            f'<tspan fill="{MUTED}" font-size="10" font-weight="400" dx="6">{mark}</tspan></text>'
         )
         if subtitle:
-            out += f'<text x="48" y="{y+11}" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">{subtitle}</text>'
+            out += f'<text x="36" y="{y+14}" font-size="10.5" fill="{MUTED}">{escape_xml(truncate(subtitle, 44))}</text>'
         return out
 
-    def cur_row(y: int, color: str, title: str, subtitle: str) -> str:
-        # single-line: title — subtitle (compact)
-        title = truncate(title, 26)
-        if subtitle:
-            text = f"{title} · {truncate(subtitle, 36 - len(title))}"
-        else:
-            text = title
-        text = escape_xml(truncate(text, 40))
-        return (
-            f'<text x="34" y="{y}" font-family="ui-monospace, monospace" font-size="11" fill="{color}">▸</text>'
-            f'<text x="48" y="{y}" font-family="ui-monospace, monospace" font-size="10" fill="#e8f7ff">{text}</text>'
-        )
+    def section(y: int, label: str, data: dict, color: str) -> int:
+        lines.append(header(y, label, data["src"] if data.get("current") else "json"))
+        y += 24
+        if data.get("favorite"):
+            fav = data["favorite"]
+            lines.append(row(y, color, "fav", fav["title"], fav.get("subtitle", "")))
+            y += 34
+        for it in data.get("current", []):
+            lines.append(row(y, BLUE, "now", it["title"], it.get("subtitle", "")))
+            y += 34
+        return y
 
-    def divider(y: int) -> str:
-        return f'<line x1="24" y1="{y}" x2="{W-24}" y2="{y}" stroke="#00f0ff" stroke-opacity="0.18"/>'
+    y = section(66, "ANIME", anime, PINK)
+    lines.append(f'<line x1="24" y1="{y - 8}" x2="{W-24}" y2="{y - 8}" stroke="{TRACK}"/>')
+    y = section(y + 12, "MANGA", manga, PINK)
 
-    # ------------- ANIME -------------
-    y = 54
-    lines.append(header(y, "ANIME", anime["src"] if anime.get("current") else "json"))
-    y += SEC_HEAD_H
-    if anime.get("favorite"):
-        lines.append(fav_row(y, "#ffb700", anime["favorite"]["title"], anime["favorite"].get("subtitle", "")))
-        y += ROW_FAV
-    for it in anime.get("current", []):
-        lines.append(cur_row(y, "#00f0ff", it["title"], it.get("subtitle", "")))
-        y += ROW_CUR
+    # Fixed height keeps the right column level with the avatar card;
+    # grows only if both media types have a current entry.
+    H = max(H_NOW, y + 4)
+    body = "\n    ".join(lines)
 
-    # divider
-    y += 2
-    lines.append(divider(y))
-
-    # ------------- MANGA -------------
-    y += 10
-    lines.append(header(y, "MANGA", manga["src"] if manga.get("current") else "json"))
-    y += SEC_HEAD_H
-    if manga.get("favorite"):
-        lines.append(fav_row(y, "#ff79c6", manga["favorite"]["title"], manga["favorite"].get("subtitle", "")))
-        y += ROW_FAV
-    for it in manga.get("current", []):
-        lines.append(cur_row(y, "#ff79c6", it["title"], it.get("subtitle", "")))
-        y += ROW_CUR
-
-    # footer
-    foot_y = H - 8
-    lines.append(
-        f'<text x="24" y="{foot_y}" font-family="ui-monospace, monospace" font-size="8" fill="#5a6275">▸ now playing</text>'
-        f'<text x="{W-24}" y="{foot_y}" font-family="ui-monospace, monospace" font-size="8" text-anchor="end" fill="#5a6275">'
-        f'updated · {updated_at.astimezone(JST):%H:%M} {TZ_LABEL}</text>'
-    )
-
-    body = "\n  ".join(lines)
-
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="Now Playing">
-  <defs>
-    <linearGradient id="np-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#1a0033"/>
-      <stop offset="100%" stop-color="#000814"/>
-    </linearGradient>
-    <pattern id="np-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M20 0 H0 V20" fill="none" stroke="#00f0ff" stroke-opacity="0.05"/>
-    </pattern>
-    <linearGradient id="np-border" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#00f0ff"/>
-      <stop offset="100%" stop-color="#ff79c6"/>
-    </linearGradient>
-    <style><![CDATA[
-      @keyframes bracket {{ 0%, 100% {{ stroke-opacity: 0.45; }} 50% {{ stroke-opacity: 1; }} }}
-      .bracket {{ animation: bracket 2.2s ease-in-out infinite; }}
-    ]]></style>
-  </defs>
-
-  <rect width="{W}" height="{H}" rx="14" fill="url(#np-bg)"/>
-  <rect width="{W}" height="{H}" rx="14" fill="url(#np-grid)"/>
-  <rect width="{W}" height="{H}" rx="14" fill="none" stroke="url(#np-border)" stroke-width="1.4"/>
-
-  <g class="bracket" stroke="#00f0ff" stroke-width="1.5" fill="none">
-    <polyline points="14,26 14,14 26,14"/>
-    <polyline points="{W-26},14 {W-14},14 {W-14},26"/>
-    <polyline points="14,{H-26} 14,{H-14} 26,{H-14}"/>
-    <polyline points="{W-26},{H-14} {W-14},{H-14} {W-14},{H-26}"/>
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="Now watching and reading">
+  <style><![CDATA[
+    @keyframes in {{ from {{ opacity: 0; transform: translateY(6px); }} to {{ opacity: 1; transform: none; }} }}
+    .body {{ animation: in 600ms cubic-bezier(.22,1,.36,1) 150ms both; }}
+    @media (prefers-reduced-motion: reduce) {{ .body {{ animation: none; }} }}
+  ]]></style>
+  <g font-family="{SANS}">
+  <rect width="{W}" height="{H}" rx="16" fill="{INK}"/>
+  <text x="24" y="38" font-size="16" font-weight="700" fill="{PAPER}">Now watching</text>
+  <text x="{W-24}" y="38" font-size="10" text-anchor="end" fill="{MUTED}">updated {updated_at.astimezone(JST):%H:%M} {TZ_LABEL}</text>
+  <g class="body">
+    {body}
   </g>
-
-  <text x="24"   y="36" font-family="ui-monospace, monospace" font-size="13" font-weight="700" fill="#00f0ff">▸ NOW PLAYING</text>
-  <text x="{W-24}" y="36" font-family="ui-monospace, monospace" font-size="10" text-anchor="end" fill="#888">{TZ_LABEL}</text>
-  <line x1="24" y1="50" x2="{W-24}" y2="50" stroke="#00f0ff" stroke-opacity="0.3"/>
-
-  {body}
+  </g>
 </svg>
 """
 
