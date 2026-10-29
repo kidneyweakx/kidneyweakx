@@ -15,6 +15,7 @@ Outputs:
 """
 from __future__ import annotations
 
+import base64
 import datetime as dt
 import json
 import os
@@ -34,26 +35,28 @@ NOW_PLAYING_JSON = ROOT / "data"   / "now-playing.json"
 JST = dt.timezone(dt.timedelta(hours=9), name="JST")
 TZ_LABEL = "JST"
 
-# Palette lifted from the avatar — keep in sync with assets/header.svg.
-INK    = "#1b1923"   # hoodie
-DUSK   = "#403b66"   # wall behind her
-TRACK  = "#2a2836"
-PAPER  = "#f3ece8"   # skin highlight
-MUTED  = "#8a86a3"
-LILAC  = "#c9c3e6"
-BLUE   = "#3fb4d8"   # hair streak
-PINK   = "#de5b94"   # sleeve stripe
+# kidneyweakx.com palette — keep in sync with scripts/render-cards.py.
+INK    = "#0f0f10"
+TRACK  = "#26282a"
+PAPER  = "#f4e8d7"
+MUTED  = "#8f877c"
+CYAN   = "#3cc8f0"
+PINK   = "#fc327a"
+YELLOW = "#f5d63d"
 SANS   = "ui-sans-serif, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;Hiragino Sans&quot;, &quot;Noto Sans JP&quot;, Helvetica, Arial, sans-serif"
+HEAD   = "'Dela Gothic One', 'Hiragino Sans', sans-serif"
+PIXEL  = "'DotGothic16', ui-monospace, monospace"
+FONTS  = ROOT / "assets" / "fonts"
 
-ONLINE = ("ONLINE", "#6fbf73")
-IDLE   = ("IDLE",   "#e2b25a")
+ONLINE = ("ONLINE", "#7fd8a0")
+IDLE   = ("IDLE",   YELLOW)
 AFK    = ("AFK",    MUTED)
 
 BUCKETS = [
-    ("Morning", "06–12", "morning", "#e2b25a"),
-    ("Daytime", "12–18", "daytime", BLUE),
-    ("Evening", "18–24", "evening", PINK),
-    ("Night",   "00–06", "night",   "#9a8fe0"),
+    ("MORNING", "06-12", "morning", YELLOW),
+    ("DAYTIME", "12-18", "daytime", CYAN),
+    ("EVENING", "18-24", "evening", PINK),
+    ("NIGHT",   "00-06", "night",   PAPER),
 ]
 
 UA = f"{USER}-status-updater/1.0"
@@ -148,34 +151,35 @@ def patch_character(status: str, color: str, push_str: str) -> bool:
     return True
 
 
-EASE = 'calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"'
+SHADOW = 6
 # (x, r, color, dur, begin, drift) — slow particles rising through the card
 MOTES = [
-    (40, 1.6, BLUE, 9, 0, 12), (96, 2.2, PINK, 11, 3, -10), (150, 1.3, LILAC, 8, 5.5, 8),
-    (212, 1.8, BLUE, 10, 1.5, -14), (268, 2.4, PINK, 12, 6, 10), (318, 1.4, LILAC, 9, 2.5, -8),
+    (40, 1.6, CYAN, 9, 0, 12), (96, 2.2, PINK, 11, 3, -10), (150, 1.3, PAPER, 8, 5.5, 8),
+    (212, 1.8, CYAN, 10, 1.5, -14), (268, 2.4, PINK, 12, 6, 10), (318, 1.4, PAPER, 9, 2.5, -8),
 ]
 
 
-def card_backdrop(w: int, h: int, uid: str) -> tuple[str, str]:
-    """(defs, body) for the card: ink fill, a drifting pink/blue glow, a glass sweep.
+def card_frame(w: int, h: int, uid: str) -> tuple[str, str]:
+    """(defs, body): embedded fonts, a flat ink card with a paper rule and a hard
+    pink offset shadow, and a few particles rising through it.
     SMIL rather than CSS so it keeps looping inside GitHub's <img>."""
-    defs = f"""<clipPath id="{uid}-clip"><rect width="{w}" height="{h}" rx="16"/></clipPath>
-    <radialGradient id="{uid}-pink"><stop offset="0" stop-color="{PINK}" stop-opacity="0.22"/><stop offset="1" stop-color="{PINK}" stop-opacity="0"/></radialGradient>
-    <radialGradient id="{uid}-blue"><stop offset="0" stop-color="{BLUE}" stop-opacity="0.18"/><stop offset="1" stop-color="{BLUE}" stop-opacity="0"/></radialGradient>
-    <linearGradient id="{uid}-glass" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </linearGradient>"""
-    body = f"""<g clip-path="url(#{uid}-clip)">
-    <rect width="{w}" height="{h}" fill="{INK}"/>
-    <circle cx="{w - 40}" cy="20" r="150" fill="url(#{uid}-pink)"><animateTransform attributeName="transform" type="translate" values="0 0;-60 {h // 3};0 0" dur="14s" repeatCount="indefinite" {EASE}/></circle>
-    <circle cx="30" cy="{h}" r="130" fill="url(#{uid}-blue)"><animateTransform attributeName="transform" type="translate" values="0 0;50 -{h // 4};0 0" dur="11s" repeatCount="indefinite" {EASE}/></circle>
-    {"".join(
-        f'<circle cx="{x}" cy="{h - 6}" r="{r}" fill="{c}" opacity="0">'
-        f'<animate attributeName="opacity" values="0;0.7;0" dur="{d}s" begin="{b}s" repeatCount="indefinite"/>'
-        f'<animateTransform attributeName="transform" type="translate" values="0 0;{dx} -{h - 30}" dur="{d}s" begin="{b}s" repeatCount="indefinite"/></circle>'
+    fonts = "".join(
+        f"@font-face {{ font-family: '{name}'; src: url(data:font/woff2;base64,"
+        f"{base64.b64encode((FONTS / file).read_bytes()).decode()}) format('woff2'); }}"
+        for name, file in [("Dela Gothic One", "dela-gothic-one-latin.woff2"), ("DotGothic16", "dotgothic16-latin.woff2")]
+    )
+    cw, ch = w - SHADOW, h - SHADOW
+    defs = f"""<style><![CDATA[{fonts}]]></style>
+    <clipPath id="{uid}-clip"><rect x="2" y="2" width="{cw - 4}" height="{ch - 4}"/></clipPath>"""
+    motes = "".join(
+        f'<circle cx="{x}" cy="{ch - 6}" r="{r}" fill="{c}" opacity="0">'
+        f'<animate attributeName="opacity" values="0;0.6;0" dur="{d}s" begin="{b}s" repeatCount="indefinite"/>'
+        f'<animateTransform attributeName="transform" type="translate" values="0 0;{dx} -{ch - 30}" dur="{d}s" begin="{b}s" repeatCount="indefinite"/></circle>'
         for x, r, c, d, b, dx in MOTES
-    )}
-  </g>"""
+    )
+    body = f"""<rect x="{SHADOW}" y="{SHADOW}" width="{cw}" height="{ch}" fill="{PINK}"/>
+  <rect x="1" y="1" width="{cw - 2}" height="{ch - 2}" fill="{INK}" stroke="{PAPER}" stroke-width="2"/>
+  <g clip-path="url(#{uid}-clip)">{motes}</g>"""
     return defs, body
 
 
@@ -189,7 +193,7 @@ def render_productive_svg(
     # 360 wide like the avatar card; with now-playing (H_NOW) and a 12px gap
     # the right column lands exactly at the card's 422px.
     W, H = 360, 180
-    BAR_X, BAR_W, BAR_H, ROW_GAP, Y0 = 130, 150, 10, 24, 58
+    BAR_X, BAR_W, BAR_H, ROW_GAP, Y0 = 128, 150, 10, 24, 58
 
     now_key = bucket_key(updated_at.astimezone(JST).hour)
     rows: list[str] = []
@@ -203,26 +207,22 @@ def render_productive_svg(
         # bar grows in, then a soft highlight runs along it every 9s, staggered per row
         extra = (
             f'''
-    <clipPath id="bar{i}"><rect x="{BAR_X}" y="0" width="{bar_w}" height="{BAR_H}" rx="5"/></clipPath>
+    <clipPath id="bar{i}"><rect x="{BAR_X}" y="0" width="{bar_w}" height="{BAR_H}"/></clipPath>
     <g clip-path="url(#bar{i})"><rect x="{BAR_X - 40}" y="0" width="40" height="{BAR_H}" fill="url(#shine)">
       <animateTransform attributeName="transform" type="translate" values="0 0;{bar_w + 40} 0;{bar_w + 40} 0" keyTimes="0;0.2;1" dur="9s" begin="{1.4 + i * 0.6:.1f}s" repeatCount="indefinite"/>
     </rect></g>'''
             if c else ""
         )
-        now = (
-            f'''
-    <circle cx="15" cy="6" r="2.5" fill="{color}"/>'''
-            if key == now_key else ""
-        )
+        now = f'\n    <rect x="12" y="2" width="6" height="6" fill="{color}"/>' if key == now_key else ""
         rows.append(
 f"""  <g transform="translate(0,{y})">{now}
-    <text x="24" y="10" font-size="12" font-weight="600" fill="{PAPER}">{label}</text>
-    <text x="84" y="10" font-size="10" fill="{MUTED}">{rng}</text>
-    <rect x="{BAR_X}" y="0" width="{BAR_W}" height="{BAR_H}" rx="5" fill="{TRACK}"/>
-    <rect x="{BAR_X}" y="0" width="0" height="{BAR_H}" rx="5" fill="{color}">
+    <text x="24" y="10" font-family="{PIXEL}" font-size="13" fill="{PAPER}">{label}</text>
+    <text x="84" y="10" font-family="{PIXEL}" font-size="11" fill="{MUTED}">{rng}</text>
+    <rect x="{BAR_X}" y="0" width="{BAR_W}" height="{BAR_H}" fill="{TRACK}"/>
+    <rect x="{BAR_X}" y="0" width="0" height="{BAR_H}" fill="{color}">
       <animate attributeName="width" values="0;{bar_w}" dur="0.9s" begin="{grow:.2f}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
     </rect>{extra}
-    <text x="{W - 24}" y="10" font-size="11" font-weight="600" text-anchor="end" fill="{PAPER}">{c}<tspan fill="{MUTED}" font-weight="400" dx="5">{pct_total}%</tspan></text>
+    <text x="{W - 26}" y="10" font-family="{PIXEL}" font-size="13" text-anchor="end" fill="{PAPER}">{c}<tspan fill="{MUTED}" font-size="11" dx="6">{pct_total}%</tspan></text>
   </g>"""
         )
 
@@ -231,30 +231,28 @@ f"""  <g transform="translate(0,{y})">{now}
         if latest else "no recent push"
     )
 
-    defs, backdrop = card_backdrop(W, H, "pc")
+    defs, card = card_frame(W, H, "pc")
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="When I commit (JST)">
   <defs>
     {defs}
     <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.4"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.45"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  {backdrop}
-  <g font-family="{SANS}">
+  {card}
   <!-- clock: minute hand laps every 4s, hour hand every 48s -->
-  <g transform="translate(32,33)" fill="none" stroke="{LILAC}" stroke-linecap="round">
-    <circle r="8" stroke-width="1.6"/>
-    <path d="M0 0 V-5.5" stroke-width="1.6"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="4s" repeatCount="indefinite"/></path>
-    <path d="M0 0 H3.5" stroke-width="1.8"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="48s" repeatCount="indefinite"/></path>
+  <g transform="translate(31,31)" fill="none" stroke="{CYAN}" stroke-linecap="square">
+    <circle r="8" stroke-width="2"/>
+    <path d="M0 0 V-5" stroke-width="2"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="4s" repeatCount="indefinite"/></path>
+    <path d="M0 0 H3.5" stroke-width="2"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="48s" repeatCount="indefinite"/></path>
   </g>
-  <text x="48" y="38" font-size="16" font-weight="700" fill="{PAPER}">When I commit</text>
-  <text x="{W - 24}" y="38" font-size="10" text-anchor="end" fill="{MUTED}">{TZ_LABEL} · last {total} events</text>
+  <text x="46" y="37" font-family="{HEAD}" font-size="15" fill="{PAPER}">WHEN I COMMIT</text>
+  <text x="{W - 26}" y="36" font-family="{PIXEL}" font-size="11" text-anchor="end" fill="{MUTED}">{TZ_LABEL} · LAST {total}</text>
 
 """ + "\n".join(rows) + f"""
 
-  <text x="24" y="{H - 14}" font-size="10" fill="{MUTED}">{push_str}</text>
-  <text x="{W - 24}" y="{H - 14}" font-size="10" text-anchor="end" fill="{MUTED}">updated {updated_at.astimezone(JST):%m-%d %H:%M}</text>
-  </g>
+  <text x="24" y="{H - 22}" font-family="{PIXEL}" font-size="11" fill="{MUTED}">{push_str}</text>
+  <text x="{W - 26}" y="{H - 22}" font-family="{PIXEL}" font-size="11" text-anchor="end" fill="{MUTED}">upd {updated_at.astimezone(JST):%m-%d %H:%M}</text>
 </svg>
 """
 
@@ -411,8 +409,8 @@ def render_now_playing_svg(
 
     def header(y: int, label: str, src: str) -> str:
         return (
-            f'<text x="24" y="{y}" font-size="11" font-weight="700" letter-spacing="1.5" fill="{LILAC}">{label}</text>'
-            f'<text x="{W-24}" y="{y}" font-size="10" text-anchor="end" fill="{MUTED}">via {src}</text>'
+            f'<text x="24" y="{y}" font-family="{PIXEL}" font-size="13" letter-spacing="2" fill="{CYAN}">{label}</text>'
+            f'<text x="{W-26}" y="{y}" font-family="{PIXEL}" font-size="11" text-anchor="end" fill="{MUTED}">via {src}</text>'
         )
 
     order = [0]  # rows fade in one after another
@@ -426,7 +424,7 @@ def render_now_playing_svg(
             f'<g opacity="0"><animate attributeName="opacity" values="0;1" dur="0.6s" begin="{begin:.2f}s" fill="freeze"/>'
             f'<animateTransform attributeName="transform" type="translate" values="0 6;0 0" dur="0.6s" begin="{begin:.2f}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>'
             +
-            f'<rect x="24" y="{y-10}" width="3" height="{h}" rx="1.5" fill="{color}"/>'
+            f'<rect x="24" y="{y-10}" width="3" height="{h}" fill="{color}"/>'
             f'<text x="36" y="{y}" font-size="13" font-weight="600" fill="{PAPER}">{title}'
             f'<tspan fill="{MUTED}" font-size="10" font-weight="400" dx="6">{mark}</tspan></text>'
         )
@@ -442,7 +440,7 @@ def render_now_playing_svg(
             lines.append(row(y, color, "fav", fav["title"], fav.get("subtitle", "")))
             y += 34
         for it in data.get("current", []):
-            lines.append(row(y, BLUE, "now", it["title"], it.get("subtitle", "")))
+            lines.append(row(y, CYAN, "now", it["title"], it.get("subtitle", "")))
             y += 34
         return y
 
@@ -455,26 +453,26 @@ def render_now_playing_svg(
     H = max(H_NOW, y + 4)
     body = "\n    ".join(lines)
 
-    defs, backdrop = card_backdrop(W, H, "np")
+    defs, card = card_frame(W, H, "np")
     # tiny equalizer next to the title
     eq = "".join(
-        f'<rect x="{24 + i * 4.5}" width="3" rx="1" fill="{c}">'
+        f'<rect x="{22 + i * 4.5}" width="3" fill="{c}">'
         f'<animate attributeName="height" values="{v}" dur="{d}s" repeatCount="indefinite"/>'
-        f'<animate attributeName="y" values="{";".join(str(38 - int(n)) for n in v.split(";"))}" dur="{d}s" repeatCount="indefinite"/></rect>'
+        f'<animate attributeName="y" values="{";".join(str(37 - int(n)) for n in v.split(";"))}" dur="{d}s" repeatCount="indefinite"/></rect>'
         for i, (v, d, c) in enumerate([
-            ("4;12;6;10;4", 1.1, PINK), ("10;4;12;6;10", 0.9, BLUE),
-            ("6;11;4;12;6", 1.3, PINK), ("12;6;10;4;12", 1.0, BLUE),
+            ("4;12;6;10;4", 1.1, PINK), ("10;4;12;6;10", 0.9, CYAN),
+            ("6;11;4;12;6", 1.3, PINK), ("12;6;10;4;12", 1.0, CYAN),
         ])
     )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="Now watching and reading">
   <defs>
     {defs}
   </defs>
-  {backdrop}
-  <g font-family="{SANS}">
+  {card}
   {eq}
-  <text x="48" y="38" font-size="16" font-weight="700" fill="{PAPER}">Now watching</text>
-  <text x="{W-24}" y="38" font-size="10" text-anchor="end" fill="{MUTED}">updated {updated_at.astimezone(JST):%H:%M} {TZ_LABEL}</text>
+  <text x="46" y="37" font-family="{HEAD}" font-size="15" fill="{PAPER}">NOW WATCHING</text>
+  <text x="{W-26}" y="36" font-family="{PIXEL}" font-size="11" text-anchor="end" fill="{MUTED}">upd {updated_at.astimezone(JST):%H:%M} {TZ_LABEL}</text>
+  <g font-family="{SANS}">
     {body}
   </g>
 </svg>
