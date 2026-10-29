@@ -38,8 +38,8 @@
 
     <path d="M12 360 H348" stroke="#3fb4d8" stroke-width="3"/>
     <path d="M12 365 H348" stroke="#de5b94" stroke-width="2"/>
-    <path d="M12 360 H348" stroke="#ffffff" stroke-opacity="0.75" stroke-width="3" stroke-dasharray="60 340" fill="none"><animate attributeName="stroke-dashoffset" values="60;-340" dur="6s" begin="0s" repeatCount="indefinite"/></path>
-    <path d="M12 365 H348" stroke="#ffffff" stroke-opacity="0.75" stroke-width="2" stroke-dasharray="60 340" fill="none"><animate attributeName="stroke-dashoffset" values="60;-340" dur="6s" begin="3s" repeatCount="indefinite"/></path>
+    <path d="M12 360 H348" stroke="#ffffff" stroke-opacity="0.75" stroke-width="3" stroke-linecap="round" stroke-dasharray="60 340" fill="none"><animate attributeName="stroke-dashoffset" values="60;-340" dur="6s" begin="0s" repeatCount="indefinite"/></path>
+    <path d="M12 365 H348" stroke="#ffffff" stroke-opacity="0.75" stroke-width="2" stroke-linecap="round" stroke-dasharray="60 340" fill="none"><animate attributeName="stroke-dashoffset" values="60;-340" dur="6s" begin="3s" repeatCount="indefinite"/></path>
 
     <g font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;Hiragino Sans&quot;, &quot;Noto Sans JP&quot;, Helvetica, Arial, sans-serif">
       <text x="24" y="390" font-size="15" font-weight="700" fill="#f3ece8">kidneyweakx</text>
