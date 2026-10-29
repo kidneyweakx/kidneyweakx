@@ -149,6 +149,11 @@ def patch_character(status: str, color: str, push_str: str) -> bool:
 
 
 EASE = 'calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"'
+# (x, r, color, dur, begin, drift) — slow particles rising through the card
+MOTES = [
+    (40, 1.6, BLUE, 9, 0, 12), (96, 2.2, PINK, 11, 3, -10), (150, 1.3, LILAC, 8, 5.5, 8),
+    (212, 1.8, BLUE, 10, 1.5, -14), (268, 2.4, PINK, 12, 6, 10), (318, 1.4, LILAC, 9, 2.5, -8),
+]
 
 
 def card_backdrop(w: int, h: int, uid: str) -> tuple[str, str]:
@@ -158,15 +163,18 @@ def card_backdrop(w: int, h: int, uid: str) -> tuple[str, str]:
     <radialGradient id="{uid}-pink"><stop offset="0" stop-color="{PINK}" stop-opacity="0.22"/><stop offset="1" stop-color="{PINK}" stop-opacity="0"/></radialGradient>
     <radialGradient id="{uid}-blue"><stop offset="0" stop-color="{BLUE}" stop-opacity="0.18"/><stop offset="1" stop-color="{BLUE}" stop-opacity="0"/></radialGradient>
     <linearGradient id="{uid}-glass" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.07"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>"""
     body = f"""<g clip-path="url(#{uid}-clip)">
     <rect width="{w}" height="{h}" fill="{INK}"/>
     <circle cx="{w - 40}" cy="20" r="150" fill="url(#{uid}-pink)"><animateTransform attributeName="transform" type="translate" values="0 0;-60 {h // 3};0 0" dur="14s" repeatCount="indefinite" {EASE}/></circle>
     <circle cx="30" cy="{h}" r="130" fill="url(#{uid}-blue)"><animateTransform attributeName="transform" type="translate" values="0 0;50 -{h // 4};0 0" dur="11s" repeatCount="indefinite" {EASE}/></circle>
-    <rect x="-160" y="-40" width="100" height="{h + 80}" fill="url(#{uid}-glass)" transform="rotate(18 {w // 2} {h // 2})">
-      <animateTransform attributeName="transform" type="translate" additive="sum" values="0 0;{w + 260} 0;{w + 260} 0" keyTimes="0;0.3;1" dur="9s" begin="2s" repeatCount="indefinite"/>
-    </rect>
+    {"".join(
+        f'<circle cx="{x}" cy="{h - 6}" r="{r}" fill="{c}" opacity="0">'
+        f'<animate attributeName="opacity" values="0;0.7;0" dur="{d}s" begin="{b}s" repeatCount="indefinite"/>'
+        f'<animateTransform attributeName="transform" type="translate" values="0 0;{dx} -{h - 30}" dur="{d}s" begin="{b}s" repeatCount="indefinite"/></circle>'
+        for x, r, c, d, b, dx in MOTES
+    )}
   </g>"""
     return defs, body
 
@@ -192,22 +200,18 @@ def render_productive_svg(
         pct_total = int(round(c / total * 100)) if total else 0
         y = Y0 + i * ROW_GAP
         grow = 0.2 + i * 0.09
-        # bar grows in, then a highlight runs along it every 5s, staggered per row
+        # bar grows in, then a soft highlight runs along it every 9s, staggered per row
         extra = (
             f'''
     <clipPath id="bar{i}"><rect x="{BAR_X}" y="0" width="{bar_w}" height="{BAR_H}" rx="5"/></clipPath>
     <g clip-path="url(#bar{i})"><rect x="{BAR_X - 40}" y="0" width="40" height="{BAR_H}" fill="url(#shine)">
-      <animateTransform attributeName="transform" type="translate" values="0 0;{bar_w + 40} 0;{bar_w + 40} 0" keyTimes="0;0.3;1" dur="5s" begin="{1.4 + i * 0.4:.1f}s" repeatCount="indefinite"/>
-    </rect></g>
-    <circle cx="{BAR_X + bar_w - 5}" cy="5" r="5" fill="{color}" opacity="0">
-      <animate attributeName="opacity" values="0;0.55;0" dur="2.6s" begin="{1.2 + i * 0.3:.1f}s" repeatCount="indefinite"/>
-      <animate attributeName="r" values="5;10;5" dur="2.6s" begin="{1.2 + i * 0.3:.1f}s" repeatCount="indefinite"/>
-    </circle>'''
+      <animateTransform attributeName="transform" type="translate" values="0 0;{bar_w + 40} 0;{bar_w + 40} 0" keyTimes="0;0.2;1" dur="9s" begin="{1.4 + i * 0.6:.1f}s" repeatCount="indefinite"/>
+    </rect></g>'''
             if c else ""
         )
         now = (
             f'''
-    <circle cx="15" cy="6" r="2.5" fill="{color}"><animate attributeName="opacity" values="1;0.25;1" dur="1.6s" repeatCount="indefinite"/></circle>'''
+    <circle cx="15" cy="6" r="2.5" fill="{color}"/>'''
             if key == now_key else ""
         )
         rows.append(
@@ -232,7 +236,7 @@ f"""  <g transform="translate(0,{y})">{now}
   <defs>
     {defs}
     <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.65"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.4"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
   </defs>
   {backdrop}
@@ -418,16 +422,10 @@ def render_now_playing_svg(
         h = 25 if subtitle else 13
         begin = 0.25 + order[0] * 0.15
         order[0] += 1
-        # "now" rows breathe so the current pick reads as live
-        pulse = (
-            f'<rect x="22" y="{y-12}" width="7" height="{h + 4}" rx="3.5" fill="{color}" opacity="0">'
-            f'<animate attributeName="opacity" values="0;0.45;0" dur="2.2s" repeatCount="indefinite"/></rect>'
-            if mark == "now" else ""
-        )
         out = (
             f'<g opacity="0"><animate attributeName="opacity" values="0;1" dur="0.6s" begin="{begin:.2f}s" fill="freeze"/>'
             f'<animateTransform attributeName="transform" type="translate" values="0 6;0 0" dur="0.6s" begin="{begin:.2f}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>'
-            + pulse +
+            +
             f'<rect x="24" y="{y-10}" width="3" height="{h}" rx="1.5" fill="{color}"/>'
             f'<text x="36" y="{y}" font-size="13" font-weight="600" fill="{PAPER}">{title}'
             f'<tspan fill="{MUTED}" font-size="10" font-weight="400" dx="6">{mark}</tspan></text>'
