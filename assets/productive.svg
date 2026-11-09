@@ -19,6 +19,7 @@
   <text x="334" y="36" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" text-anchor="end" fill="#8f877c">JST · LAST 89</text>
 
   <g transform="translate(0,58)">
+    <rect x="12" y="2" width="6" height="6" fill="#f5d63d"/>
     <text x="24" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" fill="#f4e8d7">MORNING</text>
     <text x="84" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">06-12</text>
     <rect x="128" y="0" width="150" height="10" fill="#26282a"/>
@@ -32,7 +33,6 @@
     <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">17<tspan fill="#8f877c" font-size="11" dx="6">19%</tspan></text>
   </g>
   <g transform="translate(0,82)">
-    <rect x="12" y="2" width="6" height="6" fill="#3cc8f0"/>
     <text x="24" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" fill="#f4e8d7">DAYTIME</text>
     <text x="84" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">12-18</text>
     <rect x="128" y="0" width="150" height="10" fill="#26282a"/>
@@ -73,5 +73,5 @@
   </g>
 
   <text x="24" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">last push 10:04 JST</text>
-  <text x="334" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" text-anchor="end" fill="#8f877c">upd 11-09 15:27</text>
+  <text x="334" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" text-anchor="end" fill="#8f877c">upd 11-10 07:21</text>
 </svg>
