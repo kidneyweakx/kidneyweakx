@@ -23,27 +23,26 @@
     <text x="84" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">06-12</text>
     <rect x="128" y="0" width="150" height="10" fill="#26282a"/>
     <rect x="128" y="0" width="0" height="10" fill="#f5d63d">
-      <animate attributeName="width" values="0;67" dur="0.9s" begin="0.20s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
+      <animate attributeName="width" values="0;65" dur="0.9s" begin="0.20s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
     </rect>
-    <clipPath id="bar0"><rect x="128" y="0" width="67" height="10"/></clipPath>
+    <clipPath id="bar0"><rect x="128" y="0" width="65" height="10"/></clipPath>
     <g clip-path="url(#bar0)"><rect x="88" y="0" width="40" height="10" fill="url(#shine)">
-      <animateTransform attributeName="transform" type="translate" values="0 0;107 0;107 0" keyTimes="0;0.2;1" dur="9s" begin="1.4s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;105 0;105 0" keyTimes="0;0.2;1" dur="9s" begin="1.4s" repeatCount="indefinite"/>
     </rect></g>
     <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">17<tspan fill="#8f877c" font-size="11" dx="6">19%</tspan></text>
   </g>
   <g transform="translate(0,82)">
-    <rect x="12" y="2" width="6" height="6" fill="#3cc8f0"/>
     <text x="24" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" fill="#f4e8d7">DAYTIME</text>
     <text x="84" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">12-18</text>
     <rect x="128" y="0" width="150" height="10" fill="#26282a"/>
     <rect x="128" y="0" width="0" height="10" fill="#3cc8f0">
-      <animate attributeName="width" values="0;55" dur="0.9s" begin="0.29s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
+      <animate attributeName="width" values="0;50" dur="0.9s" begin="0.29s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
     </rect>
-    <clipPath id="bar1"><rect x="128" y="0" width="55" height="10"/></clipPath>
+    <clipPath id="bar1"><rect x="128" y="0" width="50" height="10"/></clipPath>
     <g clip-path="url(#bar1)"><rect x="88" y="0" width="40" height="10" fill="url(#shine)">
-      <animateTransform attributeName="transform" type="translate" values="0 0;95 0;95 0" keyTimes="0;0.2;1" dur="9s" begin="2.0s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;90 0;90 0" keyTimes="0;0.2;1" dur="9s" begin="2.0s" repeatCount="indefinite"/>
     </rect></g>
-    <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">14<tspan fill="#8f877c" font-size="11" dx="6">16%</tspan></text>
+    <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">13<tspan fill="#8f877c" font-size="11" dx="6">15%</tspan></text>
   </g>
   <g transform="translate(0,106)">
     <text x="24" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" fill="#f4e8d7">EVENING</text>
@@ -56,22 +55,23 @@
     <g clip-path="url(#bar2)"><rect x="88" y="0" width="40" height="10" fill="url(#shine)">
       <animateTransform attributeName="transform" type="translate" values="0 0;190 0;190 0" keyTimes="0;0.2;1" dur="9s" begin="2.6s" repeatCount="indefinite"/>
     </rect></g>
-    <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">38<tspan fill="#8f877c" font-size="11" dx="6">43%</tspan></text>
+    <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">39<tspan fill="#8f877c" font-size="11" dx="6">44%</tspan></text>
   </g>
   <g transform="translate(0,130)">
+    <rect x="12" y="2" width="6" height="6" fill="#f4e8d7"/>
     <text x="24" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" fill="#f4e8d7">NIGHT</text>
     <text x="84" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">00-06</text>
     <rect x="128" y="0" width="150" height="10" fill="#26282a"/>
     <rect x="128" y="0" width="0" height="10" fill="#f4e8d7">
-      <animate attributeName="width" values="0;78" dur="0.9s" begin="0.47s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
+      <animate attributeName="width" values="0;76" dur="0.9s" begin="0.47s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>
     </rect>
-    <clipPath id="bar3"><rect x="128" y="0" width="78" height="10"/></clipPath>
+    <clipPath id="bar3"><rect x="128" y="0" width="76" height="10"/></clipPath>
     <g clip-path="url(#bar3)"><rect x="88" y="0" width="40" height="10" fill="url(#shine)">
-      <animateTransform attributeName="transform" type="translate" values="0 0;118 0;118 0" keyTimes="0;0.2;1" dur="9s" begin="3.2s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;116 0;116 0" keyTimes="0;0.2;1" dur="9s" begin="3.2s" repeatCount="indefinite"/>
     </rect></g>
     <text x="334" y="10" font-family="'DotGothic16', ui-monospace, monospace" font-size="13" text-anchor="end" fill="#f4e8d7">20<tspan fill="#8f877c" font-size="11" dx="6">22%</tspan></text>
   </g>
 
-  <text x="24" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">last push 10:04 JST</text>
-  <text x="334" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" text-anchor="end" fill="#8f877c">upd 11-12 16:09</text>
+  <text x="24" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" fill="#8f877c">last push 19:21 JST</text>
+  <text x="334" y="158" font-family="'DotGothic16', ui-monospace, monospace" font-size="11" text-anchor="end" fill="#8f877c">upd 11-13 04:53</text>
 </svg>
